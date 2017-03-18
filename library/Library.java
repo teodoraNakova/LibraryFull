@@ -1,8 +1,8 @@
 package library;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Map.Entry;
+import java.util.Random;
 import java.util.TreeMap;
 
 import reading_matter.Book;
@@ -58,6 +58,40 @@ public class Library {
 	
 	public void printCatalogue() {
 		catalogueManager.printCatalogue();
+	}
+	
+	public synchronized static void monitorReturnDate(ReadingMatter readingMatter) {
+		int sleepTime = 0;
+		if(readingMatter instanceof Book) {
+			try {	
+				sleepTime = new Random().nextInt(500);
+				Thread.sleep(sleepTime); // max is 3 seconds
+			} catch (InterruptedException e) {
+				System.out.println("Interrupted reading book.");
+			} 
+		}
+		
+		if(readingMatter instanceof Textbook) {
+			try {
+				sleepTime = new Random().nextInt(500);
+				Thread.sleep(sleepTime); // max is 2 seconds
+			} catch (InterruptedException e) {
+				System.out.println("Interrupted reading textbook.");
+			} 
+		}
+		if(sleepTime <= readingMatter.getMAX_RENT_TIME()) {
+			System.out.println("You need to pay " + readingMatter.getTax());
+			readingMatter.addReturnDate(LocalDateTime.now());
+			readingMatter.setAvailable(true);
+			return;
+		} 
+		double tax = readingMatter.getTax();
+		if(sleepTime > readingMatter.getMAX_RENT_TIME()) {
+			tax+= tax*0.01;
+		}
+		System.out.println("You need to pay " + tax);
+		readingMatter.addReturnDate(LocalDateTime.now());
+		readingMatter.setAvailable(true);
 	}
 	
 }
